@@ -1,14 +1,30 @@
+import 'dart:convert';
+
 import 'package:codefactory_flutter_lv2/common/component/custom_text_form_field.dart';
 import 'package:codefactory_flutter_lv2/common/const/colors.dart';
+import 'package:codefactory_flutter_lv2/common/const/data.dart';
 import 'package:codefactory_flutter_lv2/common/layout/default_layout.dart';
+import 'package:codefactory_flutter_lv2/common/view/root_tab.dart';
 import 'package:codefactory_flutter_lv2/gen/assets.gen.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  String username = '';
+  String password = '';
+
+  @override
   Widget build(BuildContext context) {
+    final dio = Dio();
+    const devHost = '192.168.0.31:3000';
+
     return DefaultLayout(
       child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -30,24 +46,68 @@ class LoginScreen extends StatelessWidget {
                 ),
                 CustomTextFormField(
                   hintText: '이메일을 입력해주세요.',
-                  onChanged: (String value) {},
+                  onChanged: (String value) {
+                    username = value;
+                  },
                 ),
                 const SizedBox(height: 16.0),
                 CustomTextFormField(
                   obscureText: true,
                   hintText: '비밀번호를 입력해주세요.',
-                  onChanged: (String value) {},
+                  onChanged: (String value) {
+                    password = value;
+                  },
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final rawString = '$username:$password';
+                    Codec<String, String> stringToBase64 = utf8.fuse(base64);
+                    final token = stringToBase64.encode(rawString);
+
+                    final resp = await dio.post(
+                      'http://$devHost/auth/login',
+                      options: Options(
+                        headers: {
+                          'Authorization': 'Basic $token',
+                        },
+                      ),
+                    );
+
+                    await storage.write(
+                      key: ACCESS_TOKEN_KEY,
+                      value: resp.data['accessToken'],
+                    );
+                    await storage.write(
+                      key: REFRESH_TOKEN_KEY,
+                      value: resp.data['refreshToken'],
+                    );
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => RootTab(),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PRIMARY_COLOR,
                   ),
                   child: const Text('로그인'),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final resp = await dio.post(
+                      'http://$devHost/auth/token',
+                      options: Options(
+                        headers: {
+                          'Authorization':
+                              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RAY29kZWZhY3RvcnkuYWkiLCJzdWIiOiJmNTViMzJkMi00ZDY4LTRjMWUtYTNjYS1kYTlkN2QwZDkyZTUiLCJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTY3MDEyMzI2NiwiZXhwIjoxNjcwMjA5NjY2fQ.vemVxCIzEx_u-jAueiLeOs0v5ZtfhQYVFB9-t05FC9Y',
+                        },
+                      ),
+                    );
+
+                    print(resp.data);
+                  },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.black,
                   ),

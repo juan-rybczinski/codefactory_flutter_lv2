@@ -1,10 +1,10 @@
+import 'package:codefactory_flutter_lv2/common/view/splash_screen.dart';
 import 'package:codefactory_flutter_lv2/gen/fonts.gen.dart';
-import 'package:codefactory_flutter_lv2/user/view/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(
-    _App(),
+    const _App(),
   );
 }
 
@@ -18,7 +18,7 @@ class _App extends StatelessWidget {
         fontFamily: FontFamily.notoSans,
       ),
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }

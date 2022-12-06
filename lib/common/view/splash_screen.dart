@@ -4,6 +4,7 @@ import 'package:codefactory_flutter_lv2/common/layout/default_layout.dart';
 import 'package:codefactory_flutter_lv2/common/view/root_tab.dart';
 import 'package:codefactory_flutter_lv2/gen/assets.gen.dart';
 import 'package:codefactory_flutter_lv2/user/view/login_screen.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -27,17 +28,29 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void checkToken() async {
-    final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
     final refreshToken = await storage.read(key: REFRESH_TOKEN_KEY);
 
-    if (accessToken == null || refreshToken == null) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
+    final dio = Dio();
+
+    try {
+      final resp = await dio.post(
+        'http://$devHost/auth/token',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $refreshToken',
+          },
+        ),
       );
-    } else {
+
+      await storage.write(key: ACCESS_TOKEN_KEY, value: resp.data['accessToken']);
+
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const RootTab()),
+            (route) => false,
+      );
+    } catch (e) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
             (route) => false,
       );
     }

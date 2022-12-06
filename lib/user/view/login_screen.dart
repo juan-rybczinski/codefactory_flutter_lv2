@@ -23,7 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final dio = Dio();
-    const devHost = '192.168.0.31:3000';
 
     return DefaultLayout(
       child: SingleChildScrollView(
@@ -96,17 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    final resp = await dio.post(
-                      'http://$devHost/auth/token',
-                      options: Options(
-                        headers: {
-                          'Authorization':
-                              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RAY29kZWZhY3RvcnkuYWkiLCJzdWIiOiJmNTViMzJkMi00ZDY4LTRjMWUtYTNjYS1kYTlkN2QwZDkyZTUiLCJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTY3MDEyMzI2NiwiZXhwIjoxNjcwMjA5NjY2fQ.vemVxCIzEx_u-jAueiLeOs0v5ZtfhQYVFB9-t05FC9Y',
-                        },
-                      ),
-                    );
 
-                    print(resp.data);
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.black,

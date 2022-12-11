@@ -1,6 +1,8 @@
 import 'package:codefactory_flutter_lv2/common/const/data.dart';
+import 'package:codefactory_flutter_lv2/common/dio/dio.dart';
 import 'package:codefactory_flutter_lv2/restaurant/component/restaurant_card.dart';
 import 'package:codefactory_flutter_lv2/restaurant/model/restaurant_model.dart';
+import 'package:codefactory_flutter_lv2/restaurant/repository/restaurant_repository.dart';
 import 'package:codefactory_flutter_lv2/restaurant/view/restaurant_detail_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -8,20 +10,16 @@ import 'package:flutter/material.dart';
 class RestaurantScreen extends StatelessWidget {
   const RestaurantScreen({Key? key}) : super(key: key);
 
-  Future<List> paginateRestaurant() async {
+  Future<List<RestaurantModel>> paginateRestaurant() async {
     final dio = Dio();
-    final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
-
-    final resp = await dio.get(
-      'http://$devHost/restaurant',
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-        },
-      ),
+    dio.interceptors.add(
+      CustomInterceptor(),
     );
 
-    return resp.data['data'];
+    final repository = RestaurantRepository(dio, baseUrl: 'http://$devHost/restaurant');
+    final resp = await repository.paginate();
+
+    return resp.data;
   }
 
   @override
@@ -29,7 +27,7 @@ class RestaurantScreen extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: FutureBuilder<List>(
+        child: FutureBuilder<List<RestaurantModel>>(
           future: paginateRestaurant(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -40,8 +38,7 @@ class RestaurantScreen extends StatelessWidget {
 
             return ListView.separated(
               itemBuilder: (_, index) {
-                final item = snapshot.data![index];
-                final pItem = RestaurantModel.fromJson(json: item);
+                final pItem = snapshot.data![index];
 
                 return GestureDetector(
                   onTap: () => Navigator.of(context).push(

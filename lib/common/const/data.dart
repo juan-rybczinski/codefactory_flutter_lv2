@@ -4,5 +4,3 @@ const REFRESH_TOKEN_KEY = 'REFRESH_TOKEN';
 const ACCESS_TOKEN_KEY = 'ACCESS_TOKEN';
 
 const devHost = '192.168.0.31:3000';
-
-const storage = FlutterSecureStorage();

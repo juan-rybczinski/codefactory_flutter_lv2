@@ -26,13 +26,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   void deleteToken() async {
-    final storage = ref.read(secureStorageProvider);
-
     storage.deleteAll();
   }
 
   void checkToken() async {
-    final storage = ref.read(secureStorageProvider);
     final refreshToken = await storage.read(key: REFRESH_TOKEN_KEY);
 
     final dio = Dio();

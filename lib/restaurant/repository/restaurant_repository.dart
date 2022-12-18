@@ -12,7 +12,7 @@ part 'restaurant_repository.g.dart';
 
 final restaurantRepositoryProvider = Provider<RestaurantRepository>(
   (ref) => RestaurantRepository(
-    ref.read(dioProvider),
+    dio,
     baseUrl: 'http://$devHost/restaurant',
   ),
 );

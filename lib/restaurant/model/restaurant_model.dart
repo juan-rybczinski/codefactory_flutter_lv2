@@ -1,4 +1,5 @@
 import 'package:codefactory_flutter_lv2/common/const/data.dart';
+import 'package:codefactory_flutter_lv2/common/model/model_with_id.dart';
 import 'package:codefactory_flutter_lv2/common/utils/data_utils.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -7,7 +8,7 @@ part 'restaurant_model.g.dart';
 enum RestaurantPriceRange { expensive, medium, cheap }
 
 @JsonSerializable()
-class RestaurantModel {
+class RestaurantModel implements IModelWithId {
   final String id;
   final String name;
   @JsonKey(

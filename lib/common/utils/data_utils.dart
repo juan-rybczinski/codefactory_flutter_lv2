@@ -5,4 +5,7 @@ class DataUtils {
     return 'http://$devHost$value';
   }
 
+  static List<String> listPathsToUrls(List paths) {
+    return paths.map((e) => pathToUrl(e)).toList();
+  }
 }

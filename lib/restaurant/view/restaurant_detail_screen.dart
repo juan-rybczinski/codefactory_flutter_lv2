@@ -57,8 +57,10 @@ class _RestaurantDetailScreenState
     final ratings = ref.watch(restaurantRatingProvider(widget.id));
 
     if (restaurant == null) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return const DefaultLayout(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
@@ -128,7 +130,7 @@ class _RestaurantDetailScreenState
         delegate: SliverChildBuilderDelegate(
             (context, index) => Padding(
                   padding: const EdgeInsets.only(top: 16.0),
-                  child: ProductCard.fromModel(
+                  child: ProductCard.fromRestaurantProductModel(
                     model: products[index],
                   ),
                 ),

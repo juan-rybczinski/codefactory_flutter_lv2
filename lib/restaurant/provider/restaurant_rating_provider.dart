@@ -10,7 +10,7 @@ final restaurantRatingProvider = StateNotifierProvider.family<
         repository: ref.read(restaurantRatingRepositoryProvider(id))));
 
 class RestaurantRatingStateNotifier
-    extends PaginationProvider<RatingModel, RestaurantRatingRepository> {
+    extends PaginationStateNotifier<RatingModel, RestaurantRatingRepository> {
   RestaurantRatingStateNotifier({
     required super.repository,
   });

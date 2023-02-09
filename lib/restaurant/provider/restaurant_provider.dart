@@ -2,6 +2,7 @@ import 'package:codefactory_flutter_lv2/common/model/cursor_pagination_model.dar
 import 'package:codefactory_flutter_lv2/common/provider/pagination_provider.dart';
 import 'package:codefactory_flutter_lv2/restaurant/model/restaurant_model.dart';
 import 'package:codefactory_flutter_lv2/restaurant/repository/restaurant_repository.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final restaurantDetailProvider =
@@ -12,7 +13,7 @@ final restaurantDetailProvider =
     return null;
   }
 
-  return restaurants.data.firstWhere((restaurant) => restaurant.id == id);
+  return restaurants.data.firstWhereOrNull((restaurant) => restaurant.id == id);
 });
 
 final restaurantProvider =
@@ -25,7 +26,7 @@ final restaurantProvider =
 );
 
 class RestaurantStateNotifier
-    extends PaginationProvider<RestaurantModel, RestaurantRepository> {
+    extends PaginationStateNotifier<RestaurantModel, RestaurantRepository> {
   RestaurantStateNotifier({
     required super.repository,
   });
@@ -45,11 +46,18 @@ class RestaurantStateNotifier
 
     final resp = await repository.getRestaurantDetail(id: id);
 
-    state = pState.copyWith(
-      data: pState.data
-          .map<RestaurantModel>(
-              (restaurant) => restaurant.id == id ? resp : restaurant)
-          .toList(),
-    );
+    if (pState.data.where((element) => element.id == id).isEmpty) {
+      state = pState.copyWith(data: <RestaurantModel>[
+        ...pState.data,
+        resp,
+      ]);
+    } else {
+      state = pState.copyWith(
+        data: pState.data
+            .map<RestaurantModel>(
+                (restaurant) => restaurant.id == id ? resp : restaurant)
+            .toList(),
+      );
+    }
   }
 }

@@ -4,11 +4,11 @@ import 'package:codefactory_flutter_lv2/common/model/pagination_params.dart';
 import 'package:codefactory_flutter_lv2/common/repository/base_pagination_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PaginationProvider<T extends IModelWithId, U extends IBasePaginationRepository<T>>
+class PaginationStateNotifier<T extends IModelWithId, U extends IBasePaginationRepository<T>>
     extends StateNotifier<CursorPaginationBase> {
   final U repository;
 
-  PaginationProvider({
+  PaginationStateNotifier({
     required this.repository,
   }) : super(CursorPaginationLoading()) {
     paginate();

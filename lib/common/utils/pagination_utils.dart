@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 class PaginationUtils {
   static void paginate({
     required ScrollController controller,
-    required PaginationProvider provider,
+    required PaginationStateNotifier provider,
   }) {
     if (controller.offset > controller.position.maxScrollExtent - 300) {
       provider.paginate(fetchMore: true);

@@ -1,18 +1,15 @@
-import 'dart:convert';
-
 import 'package:codefactory_flutter_lv2/common/component/custom_text_form_field.dart';
 import 'package:codefactory_flutter_lv2/common/const/colors.dart';
-import 'package:codefactory_flutter_lv2/common/const/data.dart';
-import 'package:codefactory_flutter_lv2/common/dio/dio.dart';
 import 'package:codefactory_flutter_lv2/common/layout/default_layout.dart';
-import 'package:codefactory_flutter_lv2/common/secure_storage/secure_storage.dart';
-import 'package:codefactory_flutter_lv2/common/view/root_tab.dart';
 import 'package:codefactory_flutter_lv2/gen/assets.gen.dart';
-import 'package:dio/dio.dart';
+import 'package:codefactory_flutter_lv2/user/model/user_model.dart';
+import 'package:codefactory_flutter_lv2/user/provider/user_me_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
+  static String get routeName => 'login';
+
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
@@ -25,6 +22,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loginState = ref.watch(userMeProvider);
+
     return DefaultLayout(
       child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -60,44 +59,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
-                  onPressed: () async {
-                    final rawString = '$username:$password';
-                    Codec<String, String> stringToBase64 = utf8.fuse(base64);
-                    final token = stringToBase64.encode(rawString);
-
-                    final resp = await dio.post(
-                      'http://$devHost/auth/login',
-                      options: Options(
-                        headers: {
-                          'Authorization': 'Basic $token',
+                  onPressed: loginState is UserModelLoading
+                      ? null
+                      : () async {
+                          ref.read(userMeProvider.notifier).login(
+                                username: username,
+                                password: password,
+                              );
                         },
-                      ),
-                    );
-
-                    await storage.write(
-                      key: ACCESS_TOKEN_KEY,
-                      value: resp.data['accessToken'],
-                    );
-                    await storage.write(
-                      key: REFRESH_TOKEN_KEY,
-                      value: resp.data['refreshToken'],
-                    );
-
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => RootTab(),
-                      ),
-                    );
-                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PRIMARY_COLOR,
                   ),
                   child: const Text('로그인'),
                 ),
                 TextButton(
-                  onPressed: () async {
-
-                  },
+                  onPressed: () async {},
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.black,
                   ),

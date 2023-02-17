@@ -3,6 +3,7 @@ import 'package:codefactory_flutter_lv2/common/secure_storage/secure_storage.dar
 import 'package:codefactory_flutter_lv2/user/model/user_model.dart';
 import 'package:codefactory_flutter_lv2/user/repository/auth_repository.dart';
 import 'package:codefactory_flutter_lv2/user/repository/user_me_repository.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -37,7 +38,11 @@ class UserMeStateNotifier extends StateNotifier<UserModelBase?> {
       return;
     }
 
-    state = await repository.getMe();
+    try {
+      state = await repository.getMe();
+    } on DioError catch (_) {
+      state = UserModelError(message: 'Token is expired!');
+    }
   }
 
   Future<UserModelBase> login({

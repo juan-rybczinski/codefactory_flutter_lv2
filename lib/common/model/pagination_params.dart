@@ -15,7 +15,7 @@ class PaginationParams {
   PaginationParams copyWith({
     String? after,
     int? count,
-}) {;
+  }) {
     return PaginationParams(
       after: after ?? this.after,
       count: count ?? this.count,

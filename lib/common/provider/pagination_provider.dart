@@ -2,16 +2,37 @@ import 'package:codefactory_flutter_lv2/common/model/cursor_pagination_model.dar
 import 'package:codefactory_flutter_lv2/common/model/model_with_id.dart';
 import 'package:codefactory_flutter_lv2/common/model/pagination_params.dart';
 import 'package:codefactory_flutter_lv2/common/repository/base_pagination_repository.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PaginationStateNotifier<T extends IModelWithId, U extends IBasePaginationRepository<T>>
+class _PaginationInfo {
+  final int fetchCount;
+  final bool fetchMore;
+  final bool forceRefetch;
+
+  _PaginationInfo({
+    this.fetchCount = 20,
+    this.fetchMore = false,
+    this.forceRefetch = false,
+  });
+}
+
+class PaginationStateNotifier<T extends IModelWithId,
+        U extends IBasePaginationRepository<T>>
     extends StateNotifier<CursorPaginationBase> {
   final U repository;
+  final paginationThrottle = Throttle(
+    const Duration(seconds: 3),
+    initialValue: _PaginationInfo(),
+    checkEquality: false,
+  );
 
   PaginationStateNotifier({
     required this.repository,
   }) : super(CursorPaginationLoading()) {
     paginate();
+
+    paginationThrottle.values.listen((event) => _throttlePagination(event));
   }
 
   Future<void> paginate({
@@ -19,6 +40,20 @@ class PaginationStateNotifier<T extends IModelWithId, U extends IBasePaginationR
     bool fetchMore = false,
     bool forceRefetch = false,
   }) async {
+    paginationThrottle.setValue(
+      _PaginationInfo(
+        fetchCount: fetchCount,
+        fetchMore: fetchMore,
+        forceRefetch: forceRefetch,
+      ),
+    );
+  }
+
+  Future<void> _throttlePagination(_PaginationInfo info) async {
+    final fetchCount = info.fetchCount;
+    final fetchMore = info.fetchMore;
+    final forceRefetch = info.forceRefetch;
+
     try {
       if (state is CursorPagination && !forceRefetch) {
         final pState = state as CursorPagination;

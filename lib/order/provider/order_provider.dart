@@ -1,3 +1,5 @@
+import 'package:codefactory_flutter_lv2/common/model/cursor_pagination_model.dart';
+import 'package:codefactory_flutter_lv2/common/provider/pagination_provider.dart';
 import 'package:codefactory_flutter_lv2/order/model/order_model.dart';
 import 'package:codefactory_flutter_lv2/order/model/post_order_body.dart';
 import 'package:codefactory_flutter_lv2/order/repository/order_repository.dart';
@@ -6,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 final orderProvider =
-    StateNotifierProvider<OrderStaterNotifier, List<OrderModel>>(
+    StateNotifierProvider<OrderStaterNotifier, CursorPaginationBase>(
   (ref) => OrderStaterNotifier(
     ref: ref,
     repository: ref.watch(
@@ -15,14 +17,13 @@ final orderProvider =
   ),
 );
 
-class OrderStaterNotifier extends StateNotifier<List<OrderModel>> {
+class OrderStaterNotifier extends PaginationStateNotifier<OrderModel, OrderRepository> {
   final Ref ref;
-  final OrderRepository repository;
 
   OrderStaterNotifier({
     required this.ref,
-    required this.repository,
-  }) : super([]);
+    required super.repository,
+  });
 
   Future<bool> postOrder() async {
     const uuid = Uuid();

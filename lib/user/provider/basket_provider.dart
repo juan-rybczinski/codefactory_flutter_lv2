@@ -3,6 +3,7 @@ import 'package:codefactory_flutter_lv2/user/model/basket_item_model.dart';
 import 'package:codefactory_flutter_lv2/user/model/patch_basket_body.dart';
 import 'package:codefactory_flutter_lv2/user/repository/user_me_repository.dart';
 import 'package:collection/collection.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final basketProvider =
@@ -11,20 +12,29 @@ final basketProvider =
 
 class BasketStateNotifier extends StateNotifier<List<BasketItemModel>> {
   final UserMeRepository repository;
+  final updateBasketDebouncer = Debouncer(
+    const Duration(seconds: 1),
+    initialValue: null,
+    checkEquality: false,
+  );
 
   BasketStateNotifier({
     required this.repository,
-  }) : super([]);
+  }) : super([]) {
+    updateBasketDebouncer.values.listen((event) async => await patchBasket());
+  }
 
   Future<void> patchBasket() async {
     await repository.patchBasket(
       body: PatchBasketBody(
-        basket: state.map(
-          (e) => PatchBasketBodyBasket(
-            productId: e.product.id,
-            count: e.count,
-          ),
-        ).toList(),
+        basket: state
+            .map(
+              (e) => PatchBasketBodyBasket(
+                productId: e.product.id,
+                count: e.count,
+              ),
+            )
+            .toList(),
       ),
     );
   }
@@ -54,7 +64,8 @@ class BasketStateNotifier extends StateNotifier<List<BasketItemModel>> {
         ),
       ];
     }
-    await patchBasket();
+
+    updateBasketDebouncer.setValue(null);
   }
 
   Future<void> removeFromBasket({
@@ -81,6 +92,7 @@ class BasketStateNotifier extends StateNotifier<List<BasketItemModel>> {
               : e)
           .toList();
     }
-    await patchBasket();
+
+    updateBasketDebouncer.setValue(null);
   }
 }

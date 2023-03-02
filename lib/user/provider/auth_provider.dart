@@ -1,5 +1,7 @@
 import 'package:codefactory_flutter_lv2/common/view/root_tab.dart';
 import 'package:codefactory_flutter_lv2/common/view/splash_screen.dart';
+import 'package:codefactory_flutter_lv2/order/view/order_done_screen.dart';
+import 'package:codefactory_flutter_lv2/restaurant/view/basket_screen.dart';
 import 'package:codefactory_flutter_lv2/restaurant/view/restaurant_detail_screen.dart';
 import 'package:codefactory_flutter_lv2/user/model/user_model.dart';
 import 'package:codefactory_flutter_lv2/user/provider/user_me_provider.dart';
@@ -52,6 +54,16 @@ class AuthChangeNotifier extends ChangeNotifier {
           path: '/login',
           name: LoginScreen.routeName,
           builder: (_, __) => LoginScreen(),
+        ),
+        GoRoute(
+          path: '/basket',
+          name: BasketScreen.routeName,
+          builder: (_, __) => BasketScreen(),
+        ),
+        GoRoute(
+          path: '/order_done',
+          name: OrderDoneScreen.routeName,
+          builder: (_, __) => OrderDoneScreen(),
         ),
       ];
 
